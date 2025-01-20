@@ -1,0 +1,109 @@
+import pandas as pd
+import re
+
+path = "3/jawiki-country.json"
+df = pd.read_json(path, lines=True)
+uk_df = df[df["title"]=="イギリス"]
+uk_texts = uk_df["text"].values
+
+# print(type(uk_texts))   #<class 'numpy.ndarray'>
+# print(len(uk_texts))    #1
+
+uk_texts = uk_texts[0].split("\n")
+
+# print(type(uk_texts))   #<class 'list'>
+# print(len(uk_texts))    #689
+
+mydict = {}
+ptn = [
+    "'{2,5}",
+    "\]{1,2}",
+    "\[{1,2}",
+    "#REDIRECT",
+    "~~~~",
+    "<!--\s",
+    "\s-->",
+    "={2,6}\s",
+    "=\s{2,6}",
+    "[\*,#]*\s",
+    "----",
+    "\{\{",
+    "\}\}",
+    "",
+]
+
+def resub_multi_ptn(ptn, str):
+    for i in range(len(ptn)):
+        str = re.sub(ptn[i], "", str)
+    return str
+
+for text in uk_texts:
+    match = re.search("\|(.+?)\s=\s(.+)",text)
+    if match:
+        sub_bold = match.group(2)
+        sub_bold = resub_multi_ptn(ptn, sub_bold)
+        mydict[match.group(1)]=sub_bold
+
+for i in mydict:
+    print(i, "=" ,mydict[i])
+
+
+"""
+日本語国名 = グレートブリテン及び北アイルランド連合王国
+公式国名 = lang|en|UnitedKingdomofGreatBritainandNorthernIreland<ref>英語以外での正式国名:<br/>
+国旗画像 = FlagoftheUnitedKingdom.svg
+国章画像 = ファイル:RoyalCoatofArmsoftheUnitedKingdom.svg|85px|イギリスの国章
+標語 = lang|fr|Dieuetmondroit<br/>（フランス語:Dieuetmondroit|神と我が権利）
+国歌 = 女王陛下万歳|lang|en|GodSavetheQueenenicon<br/>神よ女王を護り賜え<br/>center|ファイル:UnitedStatesNavyBand-GodSavetheQueen.ogg
+地図画像 = Europe-UK.svg
+位置画像 = UnitedKingdom(+overseasterritories)intheWorld(+Antarcticaclaims).svg
+公用語 = 英語
+首都 = ロンドン（事実上）
+最大都市 = ロンドン
+元首等肩書 = イギリスの君主|女王
+元首等氏名 = エリザベス2世
+首相等肩書 = イギリスの首相|首相
+首相等氏名 = ボリス・ジョンソン
+他元首等肩書1 = 貴族院(イギリス)|貴族院議長
+他元首等氏名1 = :en:NormanFowlerBaronFowler|ノーマン・ファウラー
+他元首等肩書2 = 庶民院(イギリス)|庶民院議長
+他元首等氏名2 = 仮リンク|リンゼイ・ホイル|en|LindsayHoyle
+他元首等肩書3 = 連合王国最高裁判所|最高裁判所長官
+他元首等氏名3 = :en:BrendaHaleBaronessHaleofRichmond|ブレンダ・ヘイル
+面積順位 = 76
+面積大きさ = 1E11
+面積値 = 244,820
+水面積率 = 1.3%
+人口統計年 = 2018
+人口順位 = 22
+人口大きさ = 1E7
+人口値 = 6643万5600<ref>Citeweb|url=https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates|title=Populationestimates-OfficeforNationalStatistics|accessdate=2019-06-26|date=2019-06-26</ref>
+人口密度値 = 271
+GDP統計年元 = 2012
+GDP値元 = 1兆5478億<refname="imf-statistics-gdp">http://www.imf.org/external/pubs/ft/weo/2012/02/weodata/weorept.aspx?pr.x=70&pr.y=13&sy=2010&ey=2012&scsm=1&ssd=1&sort=country&ds=.&br=1&c=112&s=NGDP%2CNGDPD%2CPPPGDP%2CPPPPC&grp=0&a=IMF>DataandStatistics>WorldEconomicOutlookDatabases>ByCountrise>UnitedKingdom</ref>
+GDP統計年MER = 2012
+GDP順位MER = 6
+GDP値MER = 2兆4337億<refname="imf-statistics-gdp"/>
+GDP統計年 = 2012
+GDP順位 = 6
+GDP値 = 2兆3162億<refname="imf-statistics-gdp"/>
+GDP/人 = 36,727<refname="imf-statistics-gdp"/>
+建国形態 = 建国
+確立形態1 = イングランド王国／スコットランド王国<br/>（両国とも合同法(1707年)|1707年合同法まで）
+確立年月日1 = 927年／843年
+確立形態2 = グレートブリテン王国成立<br/>（1707年合同法）
+確立年月日2 = 1707年05月01日
+確立形態3 = グレートブリテン及びアイルランド連合王国成立<br/>（合同法(1800年)|1800年合同法）
+確立年月日3 = 1801年01月01日
+確立形態4 = 現在の国号「グレートブリテン及び北アイルランド連合王国」に変更
+確立年月日4 = 1927年04月12日
+通貨 = スターリング・ポンド|UKポンド(£)
+通貨コード = GBP
+時間帯 = ±0
+夏時間 = +1
+ISO 3166-1 = GB/GBR
+ccTLD = .uk/.gb<ref>使用は.ukに比べ圧倒的少数。</ref>
+国際電話番号 = 44
+注記 = <references/>
+"""
+
